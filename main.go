@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/joho/godotenv"
 
@@ -9,16 +10,19 @@ import (
 	"github.com/bennyamirul/portfolio-backend/router"
 )
 
-// main memuat konfigurasi environment, menghubungkan database, lalu menjalankan HTTP server Gin.
-// Alur ini dipakai agar aplikasi berhenti lebih awal kalau file .env atau database belum siap.
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	// Load .env hanya kalau ada — jangan fatal kalau tidak ketemu (misal di production/Railway)
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found, using system environment variables")
 	}
 
 	config.LoadAdminConfig()
 	config.ConnectDatabase()
 
-	router.SetupRouter().Run(":8080")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080" // fallback untuk local dev
+	}
+
+	router.SetupRouter().Run(":" + port)
 }
