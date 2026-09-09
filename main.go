@@ -17,7 +17,9 @@ func main() {
 	}
 
 	config.LoadAdminConfig()
-	config.ConnectDatabase()
+	if err := config.ConnectDatabase(); err != nil {
+		log.Fatalf("Database initialization failed: %v", err)
+	}
 
 	port := os.Getenv("PORT")
 	if port == "" {
